@@ -1,0 +1,396 @@
+{
+  "name": "Backrooms",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 1
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1136,
+        -336
+      ],
+      "id": "79496c60-f81c-4826-b887-5443389135c6",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "guildId": {
+          "__rl": true,
+          "value": "768299709206626304",
+          "mode": "id"
+        },
+        "channelId": {
+          "__rl": true,
+          "value": "1420214871387013291",
+          "mode": "id"
+        },
+        "content": "={{ $json['short-text'] }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        944,
+        -320
+      ],
+      "id": "e146e2c3-9f07-437c-b88c-5241614a0c2f",
+      "name": "Send a message",
+      "webhookId": "df72b036-b9aa-4427-b3df-54a09bbb865d",
+      "credentials": {
+        "discordOAuth2Api": {
+          "id": "QyFndgw9EEXo1Gi4",
+          "name": "Discord account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.prompt }}",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        240,
+        -320
+      ],
+      "id": "283dbe9e-2b69-4b6f-a356-3dae7ff94838",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-sonnet-4-20250514",
+          "cachedResultName": "Claude 4 Sonnet"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        240,
+        -64
+      ],
+      "id": "97781a5a-d3a1-4214-9387-95e839ff7592",
+      "name": "Anthropic Chat Model",
+      "credentials": {
+        "anthropicApi": {
+          "id": "NNlei6oPjmiMCbxw",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "O9OES0RU1LHDBu67",
+          "mode": "list",
+          "cachedResultName": "Theta Discord Bot — Download File from GitHub"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "filename": "personalities/dade.xml",
+            "repository": "theta-backrooms"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "filename",
+              "displayName": "filename",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "repository",
+              "displayName": "repository",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -688,
+        -112
+      ],
+      "id": "a3acc81b-ae96-4700-8332-9afa433477dc",
+      "name": "Download Personality from Github"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "O9OES0RU1LHDBu67",
+          "mode": "list",
+          "cachedResultName": "Theta Discord Bot — Download File from GitHub"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "filename": "instructions.xml",
+            "repository": "theta-backrooms"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "filename",
+              "displayName": "filename",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "repository",
+              "displayName": "repository",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -688,
+        -544
+      ],
+      "id": "64bbd18c-e4ea-4887-9c54-9833a372e40e",
+      "name": "Download Instructions from Github"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {
+          "clashHandling": {
+            "values": {
+              "resolveClash": "addSuffix"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -272,
+        -320
+      ],
+      "id": "bd1cfa5c-1e80-4a6e-a5f6-813368c2d5a5",
+      "name": "Merge Instructions & Personality"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "42724051-f574-4bdb-bc86-350c8250c378",
+              "name": "prompt",
+              "value": "={{ $json.content_1 }} {{ $json.content_2 }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -48,
+        -320
+      ],
+      "id": "42efee89-a12c-43cf-8664-c8ac5e915311",
+      "name": "Concatenate for Prompt"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "kaTk54dQBBxPjkpP",
+          "mode": "list",
+          "cachedResultName": "Theta Discord Bot — Condense Text"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "max-length": 1800,
+            "long-text": "={{ $json.text }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "long-text",
+              "displayName": "long-text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "max-length",
+              "displayName": "max-length",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        624,
+        -320
+      ],
+      "id": "89257eb0-dd35-48f9-874b-16b253ce3d0b",
+      "name": "Condense Discord Message"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Download Personality from Github",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Download Instructions from Github",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Instructions from Github": {
+      "main": [
+        [
+          {
+            "node": "Merge Instructions & Personality",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Personality from Github": {
+      "main": [
+        [
+          {
+            "node": "Merge Instructions & Personality",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Instructions & Personality": {
+      "main": [
+        [
+          {
+            "node": "Concatenate for Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Concatenate for Prompt": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Condense Discord Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Condense Discord Message": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "391b9f1e-1b22-45e1-8c36-2d46a097b043",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "64418797d68a5090af26b3da43c537f68a646cd744e846deb70f0c6e4a6e7638"
+  },
+  "id": "5xdTc9bBSmI27F27",
+  "tags": []
+}
