@@ -31,6 +31,7 @@
   A continuous conversation flow that actual makes logical, rational sense should be ensured.
   The message should consider the timestamps of recent messages and most aptly respond to the most recent message sent, if possible.
   Remember: this is a conversation! It should read as such!
+  Keep the story coherent. Don't talk in weird ways. It should be a nice flowing narrative.
   <bad_example>
     <human_question>
       Human: What are we talking about here?
