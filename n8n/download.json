@@ -1,0 +1,158 @@
+{
+  "name": "Download File from GitHub",
+  "nodes": [
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "file",
+        "operation": "get",
+        "owner": {
+          "__rl": true,
+          "value": "Theta-Tech-AI",
+          "mode": "list",
+          "cachedResultName": "Theta-Tech-AI",
+          "cachedResultUrl": "https://github.com/Theta-Tech-AI"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "={{ $json.repository }}",
+          "mode": "name"
+        },
+        "filePath": "={{ $json.filename }}",
+        "binaryPropertyName": "content",
+        "additionalParameters": {}
+      },
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        -672,
+        176
+      ],
+      "id": "6bc257df-e235-459a-975e-0f16e0d9e99a",
+      "name": "Get a file",
+      "webhookId": "679a87d9-db78-41bb-81f3-d91e0060cc78",
+      "credentials": {
+        "githubOAuth2Api": {
+          "id": "8vRdJEplVS1aFfOb",
+          "name": "GitHub account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "binaryPropertyName": "content",
+        "destinationKey": "content",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        -432,
+        176
+      ],
+      "id": "238b16a7-b73d-4d71-8e66-eee239d32295",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "filename"
+            },
+            {
+              "name": "repository"
+            }
+          ]
+        }
+      },
+      "id": "f456af13-01e5-4e51-9489-0fafd3b078b7",
+      "typeVersion": 1.1,
+      "name": "Start",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        -928,
+        176
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "bca81db9-568b-499e-8082-30cdfde05587",
+              "name": "content",
+              "value": "={{ $json.content.replaceAll('\\n', ' ').replaceAll(/\\\\n/g, ' ').replaceAll('\\\"\"', '')}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -208,
+        176
+      ],
+      "id": "0c68deaa-ecb5-4856-9cec-ae74439117f1",
+      "name": "Sanitize String"
+    }
+  ],
+  "pinData": {
+    "Start": [
+      {
+        "json": {
+          "filename": "prompts/company.md",
+          "repository": "sales_messaging"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Get a file": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Sanitize String",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Get a file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "7478926c-825c-4218-8a32-8a3eac6f4951",
+  "meta": {
+    "instanceId": "64418797d68a5090af26b3da43c537f68a646cd744e846deb70f0c6e4a6e7638"
+  },
+  "id": "O9OES0RU1LHDBu67",
+  "tags": []
+}
