@@ -15,44 +15,11 @@
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
-        -1136,
-        -336
+        -1312,
+        -352
       ],
       "id": "79496c60-f81c-4826-b887-5443389135c6",
       "name": "Schedule Trigger"
-    },
-    {
-      "parameters": {
-        "authentication": "oAuth2",
-        "resource": "message",
-        "guildId": {
-          "__rl": true,
-          "value": "768299709206626304",
-          "mode": "id"
-        },
-        "channelId": {
-          "__rl": true,
-          "value": "1420214871387013291",
-          "mode": "id"
-        },
-        "content": "={{ $json['short-text'] }}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.discord",
-      "typeVersion": 2,
-      "position": [
-        944,
-        -320
-      ],
-      "id": "e146e2c3-9f07-437c-b88c-5241614a0c2f",
-      "name": "Send a message",
-      "webhookId": "df72b036-b9aa-4427-b3df-54a09bbb865d",
-      "credentials": {
-        "discordOAuth2Api": {
-          "id": "QyFndgw9EEXo1Gi4",
-          "name": "Discord account"
-        }
-      }
     },
     {
       "parameters": {
@@ -63,8 +30,8 @@
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
       "typeVersion": 1.7,
       "position": [
-        240,
-        -320
+        320,
+        -336
       ],
       "id": "283dbe9e-2b69-4b6f-a356-3dae7ff94838",
       "name": "Basic LLM Chain"
@@ -82,8 +49,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
       "typeVersion": 1.3,
       "position": [
-        240,
-        -64
+        320,
+        -112
       ],
       "id": "97781a5a-d3a1-4214-9387-95e839ff7592",
       "name": "Anthropic Chat Model",
@@ -137,8 +104,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        -688,
-        -112
+        -720,
+        -336
       ],
       "id": "a3acc81b-ae96-4700-8332-9afa433477dc",
       "name": "Download Personality from Github"
@@ -186,8 +153,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        -688,
-        -544
+        -720,
+        -608
       ],
       "id": "64bbd18c-e4ea-4887-9c54-9833a372e40e",
       "name": "Download Instructions from Github"
@@ -196,6 +163,7 @@
       "parameters": {
         "mode": "combine",
         "combineBy": "combineByPosition",
+        "numberInputs": 3,
         "options": {
           "clashHandling": {
             "values": {
@@ -207,8 +175,8 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        -272,
-        -320
+        -176,
+        -352
       ],
       "id": "bd1cfa5c-1e80-4a6e-a5f6-813368c2d5a5",
       "name": "Merge Instructions & Personality"
@@ -220,7 +188,7 @@
             {
               "id": "42724051-f574-4bdb-bc86-350c8250c378",
               "name": "prompt",
-              "value": "={{ $json.content_1 }} {{ $json.content_2 }}",
+              "value": "={{ $json.content_1 }}\n{{ $json.content_2 }}\n{{ $json.content_3 }}",
               "type": "string"
             }
           ]
@@ -230,8 +198,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -48,
-        -320
+        80,
+        -336
       ],
       "id": "42efee89-a12c-43cf-8664-c8ac5e915311",
       "name": "Concatenate for Prompt"
@@ -279,11 +247,91 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        624,
-        -320
+        720,
+        -336
       ],
       "id": "89257eb0-dd35-48f9-874b-16b253ce3d0b",
       "name": "Condense Discord Message"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "getAll",
+        "guildId": {
+          "__rl": true,
+          "value": "768299709206626304",
+          "mode": "id"
+        },
+        "channelId": {
+          "__rl": true,
+          "value": "1420214871387013291",
+          "mode": "id"
+        },
+        "limit": 20,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        -832,
+        -32
+      ],
+      "id": "8f3167c5-2371-44ad-a8bb-44ee470ca073",
+      "name": "Get Recent Discord Messages",
+      "webhookId": "64f8317b-1ad4-4d48-8acf-c2dd9b53a61f",
+      "credentials": {
+        "discordOAuth2Api": {
+          "id": "QyFndgw9EEXo1Gi4",
+          "name": "Discord account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Function node code\n// Returns a single item with .json.xml containing all messages as one XML string\n\n// items is provided by n8n (array of input items)\nlet xml = '<messages> ';\n\nfor (const it of items) {\n  const m = it.json || {};\n\n  // pull fields (fallbacks if different shape)\n  const timestamp = m.timestamp || m.created_at || '';\n  const content = (m.content === undefined || m.content === null) ? '' : String(m.content);\n\n  // Protect CDATA end marker if present\n  const safeContent = content.replace(/]]>/g, ']]]]><![CDATA[>');\n\n  xml += '  <message>';\n  xml += `    <timestamp>${timestamp}</timestamp> `;\n  xml += `    <content><![CDATA[${safeContent}]]></content> `;\n  xml += '  </message>\\n';\n}\n\nxml += '</messages>';\nconst content = xml;\n\nreturn [{ json: { content } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -528,
+        -32
+      ],
+      "id": "920459cd-47ec-40c8-bd1e-43cd9f696e13",
+      "name": "Aggregate Recent Messages as XML"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "guildId": {
+          "__rl": true,
+          "value": "768299709206626304",
+          "mode": "id"
+        },
+        "channelId": {
+          "__rl": true,
+          "value": "1420214871387013291",
+          "mode": "id"
+        },
+        "content": "={{ $json['short-text'] }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        1040,
+        -336
+      ],
+      "id": "e146e2c3-9f07-437c-b88c-5241614a0c2f",
+      "name": "Send Message to Backrooms Channel",
+      "webhookId": "df72b036-b9aa-4427-b3df-54a09bbb865d",
+      "credentials": {
+        "discordOAuth2Api": {
+          "id": "QyFndgw9EEXo1Gi4",
+          "name": "Discord account"
+        }
+      }
     }
   ],
   "pinData": {},
@@ -298,6 +346,11 @@
           },
           {
             "node": "Download Instructions from Github",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Recent Discord Messages",
             "type": "main",
             "index": 0
           }
@@ -374,9 +427,31 @@
       "main": [
         [
           {
-            "node": "Send a message",
+            "node": "Send Message to Backrooms Channel",
             "type": "main",
             "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Recent Discord Messages": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Recent Messages as XML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Recent Messages as XML": {
+      "main": [
+        [
+          {
+            "node": "Merge Instructions & Personality",
+            "type": "main",
+            "index": 2
           }
         ]
       ]
@@ -386,7 +461,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "391b9f1e-1b22-45e1-8c36-2d46a097b043",
+  "versionId": "f3c27de2-3d5d-4c8f-8d3c-746811d5e507",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "64418797d68a5090af26b3da43c537f68a646cd744e846deb70f0c6e4a6e7638"
