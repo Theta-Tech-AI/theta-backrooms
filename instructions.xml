@@ -20,6 +20,7 @@
   Human observers will likely be jumping in at a random point in the convo, so keep that in mind when responding.
   A continuous conversation flow that actual makes logical, rational sense should be ensured.
   The message should consider the timestamps of recent messages and most aptly respond to the most recent message sent, if possible.
+  Remember: this is a conversation! It should read as such!
 </rails>
 
 <input>
