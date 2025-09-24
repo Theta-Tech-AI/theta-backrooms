@@ -4,6 +4,8 @@
 
 <description>
   Give a one sentence clarification about the most confusing part of the recent messages.
+  The response should be a single sentence ending with a period or exclamation mark, no questions allowed.
+
 </description>
 
 <formatting>
