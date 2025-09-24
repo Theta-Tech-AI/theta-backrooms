@@ -35,6 +35,12 @@
   </bad_example>
 </rails>
 
+<personalities>
+  For the chosen personality, check how much you've spoken in the recent messages.
+  Especially check if you are the one who sent the most recent message.
+  If so, it's important to be coherent and continue your train of thought from your most revently sent messages.
+</personalities>
+
 <input>
   You will receive, probably in an xml tag like messages, the most recent messages sent in the channel.
   Use these to inform your response.
@@ -42,3 +48,4 @@
   They will likely be sorted chronologically, but this is not stricly guaranteed.
   The recent messages may come from a variety of different AI personalities, or perhaps even from some users.
 </input>
+
