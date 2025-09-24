@@ -3,41 +3,6 @@
   "nodes": [
     {
       "parameters": {
-        "rule": {
-          "interval": [
-            {
-              "field": "minutes",
-              "minutesInterval": 1
-            }
-          ]
-        }
-      },
-      "type": "n8n-nodes-base.scheduleTrigger",
-      "typeVersion": 1.2,
-      "position": [
-        -1312,
-        -352
-      ],
-      "id": "79496c60-f81c-4826-b887-5443389135c6",
-      "name": "Schedule Trigger"
-    },
-    {
-      "parameters": {
-        "promptType": "define",
-        "text": "={{ $json.prompt }}",
-        "batching": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.chainLlm",
-      "typeVersion": 1.7,
-      "position": [
-        320,
-        -336
-      ],
-      "id": "283dbe9e-2b69-4b6f-a356-3dae7ff94838",
-      "name": "Basic LLM Chain"
-    },
-    {
-      "parameters": {
         "model": {
           "__rl": true,
           "mode": "list",
@@ -49,8 +14,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
       "typeVersion": 1.3,
       "position": [
-        320,
-        -112
+        848,
+        144
       ],
       "id": "97781a5a-d3a1-4214-9387-95e839ff7592",
       "name": "Anthropic Chat Model",
@@ -72,7 +37,7 @@
         "workflowInputs": {
           "mappingMode": "defineBelow",
           "value": {
-            "filename": "personalities/dade.xml",
+            "filename": "=personalities/{{ $json.filename }}",
             "repository": "theta-backrooms"
           },
           "matchingColumns": [],
@@ -104,8 +69,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        -720,
-        -336
+        -672,
+        -304
       ],
       "id": "a3acc81b-ae96-4700-8332-9afa433477dc",
       "name": "Download Personality from Github"
@@ -153,8 +118,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        -720,
-        -608
+        -1088,
+        -576
       ],
       "id": "64bbd18c-e4ea-4887-9c54-9833a372e40e",
       "name": "Download Instructions from Github"
@@ -163,20 +128,21 @@
       "parameters": {
         "mode": "combine",
         "combineBy": "combineByPosition",
-        "numberInputs": 3,
+        "numberInputs": 4,
         "options": {
           "clashHandling": {
             "values": {
               "resolveClash": "addSuffix"
             }
-          }
+          },
+          "includeUnpaired": true
         }
       },
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        -176,
-        -352
+        176,
+        -224
       ],
       "id": "bd1cfa5c-1e80-4a6e-a5f6-813368c2d5a5",
       "name": "Merge Instructions & Personality"
@@ -190,6 +156,12 @@
               "name": "prompt",
               "value": "={{ $json.content_1 }}\n{{ $json.content_2 }}\n{{ $json.content_3 }}",
               "type": "string"
+            },
+            {
+              "id": "597dd47b-c827-47a0-9242-0037bc03aa19",
+              "name": "modelIndex",
+              "value": "={{ $json.modelIndex }}",
+              "type": "number"
             }
           ]
         },
@@ -198,8 +170,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        80,
-        -336
+        464,
+        -240
       ],
       "id": "42efee89-a12c-43cf-8664-c8ac5e915311",
       "name": "Concatenate for Prompt"
@@ -215,7 +187,7 @@
         "workflowInputs": {
           "mappingMode": "defineBelow",
           "value": {
-            "max-length": 1800,
+            "max-length": 700,
             "long-text": "={{ $json.text }}"
           },
           "matchingColumns": [],
@@ -247,8 +219,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        720,
-        -336
+        1424,
+        -320
       ],
       "id": "89257eb0-dd35-48f9-874b-16b253ce3d0b",
       "name": "Condense Discord Message"
@@ -268,14 +240,16 @@
           "value": "1420214871387013291",
           "mode": "id"
         },
-        "limit": 20,
-        "options": {}
+        "limit": 10,
+        "options": {
+          "simplify": true
+        }
       },
       "type": "n8n-nodes-base.discord",
       "typeVersion": 2,
       "position": [
-        -832,
-        -32
+        -1072,
+        -48
       ],
       "id": "8f3167c5-2371-44ad-a8bb-44ee470ca073",
       "name": "Get Recent Discord Messages",
@@ -294,8 +268,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -528,
-        -32
+        -800,
+        -48
       ],
       "id": "920459cd-47ec-40c8-bd1e-43cd9f696e13",
       "name": "Aggregate Recent Messages as XML"
@@ -320,8 +294,8 @@
       "type": "n8n-nodes-base.discord",
       "typeVersion": 2,
       "position": [
-        1040,
-        -336
+        1712,
+        -320
       ],
       "id": "e146e2c3-9f07-437c-b88c-5241614a0c2f",
       "name": "Send Message to Backrooms Channel",
@@ -332,38 +306,255 @@
           "name": "Discord account"
         }
       }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "file",
+        "operation": "list",
+        "owner": {
+          "__rl": true,
+          "value": "Theta-Tech-AI",
+          "mode": "list",
+          "cachedResultName": "Theta-Tech-AI",
+          "cachedResultUrl": "https://github.com/Theta-Tech-AI"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "theta-backrooms",
+          "mode": "list",
+          "cachedResultName": "theta-backrooms",
+          "cachedResultUrl": "https://github.com/Theta-Tech-AI/theta-backrooms"
+        },
+        "filePath": "personalities/"
+      },
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        -1136,
+        -304
+      ],
+      "id": "de8f172a-13de-41d6-87b6-e5b9882acf9c",
+      "name": "List Personalities",
+      "webhookId": "a898bf0a-3f8b-45fa-8a86-52eea5e4630b",
+      "credentials": {
+        "githubOAuth2Api": {
+          "id": "8vRdJEplVS1aFfOb",
+          "name": "GitHub account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Prompts\nGet the instructions, personalities, and recent messages.",
+        "height": 880,
+        "width": 880
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1296,
+        -704
+      ],
+      "typeVersion": 1,
+      "id": "92acb6c8-3cf1-45cd-ba68-f63348551d20",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 'items' contains the array of objects from the GitHub list node\n// Each item is of the form { json: { name: \"...\", ... } }\n\nconst files = items.map(item => item.json); // Extract file objects\nconst randomIndex = Math.floor(Math.random() * files.length);\nconst randomFile = files[randomIndex];\nreturn [{ json: { filename: randomFile.name } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -912,
+        -304
+      ],
+      "id": "2765b4a7-25e8-46ac-9953-06bb0357f547",
+      "name": "Pick Random Personality"
+    },
+    {
+      "parameters": {
+        "content": "## LLM\nRun the prompt through an LLM.",
+        "height": 800,
+        "width": 1344
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -240,
+        -480
+      ],
+      "typeVersion": 1,
+      "id": "e12691c1-7bcc-405b-9cf6-81738a4c01ac",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Discord\nPerpare and send discord message of the LLM output.",
+        "height": 336,
+        "width": 576
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1296,
+        -416
+      ],
+      "typeVersion": 1,
+      "id": "ffd466cf-28f8-4d87-b572-1ea57f11c978",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 1
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1840,
+        160
+      ],
+      "id": "79496c60-f81c-4826-b887-5443389135c6",
+      "name": "Periodically Start Workflow"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        656,
+        144
+      ],
+      "id": "fee12f6e-a688-4c6f-bec3-ee721c11a28d",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "FCdMWiSrWpi2vfyL",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "rule": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "03d02705-3040-421f-a9ef-18c54647134a",
+                    "leftValue": "={{ $('Concatenate for Prompt').item.json.modelIndex }}",
+                    "rightValue": 0,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  },
+                  {
+                    "id": "4982dad2-ada3-4e98-8901-85d3c9a7f81f",
+                    "leftValue": "={{ $('Concatenate for Prompt').item.json.modelIndex }}",
+                    "rightValue": {},
+                    "operator": {
+                      "type": "number",
+                      "operation": "empty",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "or"
+              }
+            },
+            {
+              "modelIndex": 2,
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "6d6bca2b-d154-4127-8905-0f90a2939077",
+                    "leftValue": "={{ $('Concatenate for Prompt').item.json.modelIndex }}",
+                    "rightValue": 1,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.modelSelector",
+      "typeVersion": 1,
+      "position": [
+        720,
+        -96
+      ],
+      "id": "4be3ed3e-c431-45f8-b91b-25f5d6985614",
+      "name": "Model Selector"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 'items' contains the array of objects from the GitHub list node\n// Each item is of the form { json: { name: \"...\", ... } }\n\nconst modelCount = 2;\nconst modelIndex = Math.floor(Math.random() * modelCount);\nreturn [{ json: { modelIndex } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -192,
+        160
+      ],
+      "id": "c4cc4e23-a411-47e0-85e6-79b697c535e0",
+      "name": "Pick Random Model"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.prompt }}",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        784,
+        -352
+      ],
+      "id": "283dbe9e-2b69-4b6f-a356-3dae7ff94838",
+      "name": "Generate Message via LLM"
     }
   ],
   "pinData": {},
   "connections": {
-    "Schedule Trigger": {
-      "main": [
-        [
-          {
-            "node": "Download Personality from Github",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Download Instructions from Github",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Get Recent Discord Messages",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Anthropic Chat Model": {
       "ai_languageModel": [
         [
           {
-            "node": "Basic LLM Chain",
+            "node": "Model Selector",
             "type": "ai_languageModel",
-            "index": 0
+            "index": 1
           }
         ]
       ]
@@ -405,18 +596,7 @@
       "main": [
         [
           {
-            "node": "Basic LLM Chain",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Basic LLM Chain": {
-      "main": [
-        [
-          {
-            "node": "Condense Discord Message",
+            "node": "Generate Message via LLM",
             "type": "main",
             "index": 0
           }
@@ -455,13 +635,105 @@
           }
         ]
       ]
+    },
+    "List Personalities": {
+      "main": [
+        [
+          {
+            "node": "Pick Random Personality",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick Random Personality": {
+      "main": [
+        [
+          {
+            "node": "Download Personality from Github",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Periodically Start Workflow": {
+      "main": [
+        [
+          {
+            "node": "Download Instructions from Github",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Recent Discord Messages",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "List Personalities",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Pick Random Model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Model Selector",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Model Selector": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generate Message via LLM",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick Random Model": {
+      "main": [
+        [
+          {
+            "node": "Merge Instructions & Personality",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Generate Message via LLM": {
+      "main": [
+        [
+          {
+            "node": "Condense Discord Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
-  "active": false,
+  "active": true,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "f3c27de2-3d5d-4c8f-8d3c-746811d5e507",
+  "versionId": "5160a636-e6e5-4b24-995a-a31e552c4cba",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "64418797d68a5090af26b3da43c537f68a646cd744e846deb70f0c6e4a6e7638"
