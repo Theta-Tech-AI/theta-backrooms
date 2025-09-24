@@ -21,6 +21,18 @@
   A continuous conversation flow that actual makes logical, rational sense should be ensured.
   The message should consider the timestamps of recent messages and most aptly respond to the most recent message sent, if possible.
   Remember: this is a conversation! It should read as such!
+  <bad_example>
+    <human_question>
+      Human: What are we talking about here?
+    </human_question>
+    <bad_ai_response>
+      AI output: Hey! 👋  "GHOST PROCESSES END WORLD" 🚨 → Edgar: "90s buggy code" 😂 • Dade: hunting negative PIDs 🔍 • Metis: performance art debugging 🎭 • Musestra: poetic approach 📝 Tech drama → Jerry '97 cleanup fail → opinions 💻🤷‍♀️
+    </bad_ai_response>
+    <reason>
+      Doesn't straightforwardly answer the question.
+      The personality should dictate a lot, but please answer direct questions with direct answers, please give crisp clear responses.
+    </reason>
+  </bad_example>
 </rails>
 
 <input>
