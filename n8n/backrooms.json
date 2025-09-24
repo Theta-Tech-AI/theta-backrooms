@@ -14,8 +14,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
       "typeVersion": 1.3,
       "position": [
-        848,
-        144
+        480,
+        224
       ],
       "id": "97781a5a-d3a1-4214-9387-95e839ff7592",
       "name": "Anthropic Chat Model",
@@ -141,8 +141,8 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        176,
-        -224
+        16,
+        -208
       ],
       "id": "bd1cfa5c-1e80-4a6e-a5f6-813368c2d5a5",
       "name": "Merge Instructions & Personality"
@@ -170,8 +170,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        464,
-        -240
+        256,
+        -176
       ],
       "id": "42efee89-a12c-43cf-8664-c8ac5e915311",
       "name": "Concatenate for Prompt"
@@ -187,7 +187,7 @@
         "workflowInputs": {
           "mappingMode": "defineBelow",
           "value": {
-            "max-length": 700,
+            "max-length": 1000,
             "long-text": "={{ $json.text }}"
           },
           "matchingColumns": [],
@@ -219,8 +219,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        1424,
-        -320
+        1072,
+        -176
       ],
       "id": "89257eb0-dd35-48f9-874b-16b253ce3d0b",
       "name": "Condense Discord Message"
@@ -263,7 +263,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Function node code\n// Returns a single item with .json.xml containing all messages as one XML string\n\n// items is provided by n8n (array of input items)\nlet xml = '<messages> ';\n\nfor (const it of items) {\n  const m = it.json || {};\n\n  // pull fields (fallbacks if different shape)\n  const timestamp = m.timestamp || m.created_at || '';\n  const content = (m.content === undefined || m.content === null) ? '' : String(m.content);\n\n  // Protect CDATA end marker if present\n  const safeContent = content.replace(/]]>/g, ']]]]><![CDATA[>');\n\n  xml += '  <message>';\n  xml += `    <timestamp>${timestamp}</timestamp> `;\n  xml += `    <content><![CDATA[${safeContent}]]></content> `;\n  xml += '  </message>\\n';\n}\n\nxml += '</messages>';\nconst content = xml;\n\nreturn [{ json: { content } }];\n"
+        "jsCode": "// Function node code\n// Returns a single item with .json.xml containing all messages as one XML string\n\n// items is provided by n8n (array of input items)\nlet xml = '<messages>';\n\nfunction protectCdata(str) {\n  const s = (str === undefined || str === null) ? '' : String(str);\n  return s.replace(/]]>/g, ']]]]><![CDATA[>');\n}\n\nfor (const it of items) {\n  const m = it.json || {};\n  const author = m.author || {};\n\n  // fields\n  const timestamp = m.timestamp || m.created_at || '';\n\n  // content as string + protected for CDATA\n  const content = (m.content === undefined || m.content === null) ? '' : String(m.content);\n  const safeContent = protectCdata(content);\n\n  // decide username\n  const rawUsername = author.username || '';\n  let chosenUsername = rawUsername;\n\n  if (rawUsername === 'Theta-Bot') {\n    // Try to extract personality name from leading \"**Name:**\" pattern\n    // e.g., \"**Musestra:** hello\"\n    const match = content.match(/^\\s*\\*\\*([^:]+):\\*\\*/);\n    if (match && match[1]) {\n      chosenUsername = match[1].trim();\n    }\n  }\n\n  const safeUsername = protectCdata(chosenUsername);\n\n  // build xml for this message\n  xml += '\\n  <message>';\n  xml += `\\n    <timestamp>${timestamp}</timestamp>`;\n  xml += `\\n    <username><![CDATA[${safeUsername}]]></username>`;\n  xml += `\\n    <content><![CDATA[${safeContent}]]></content>`;\n  xml += '\\n  </message>';\n}\n\nxml += '\\n</messages>';\n\nconst contentOut = xml;\n\nreturn [{ json: { content: contentOut } }];\n"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -294,8 +294,8 @@
       "type": "n8n-nodes-base.discord",
       "typeVersion": 2,
       "position": [
-        1712,
-        -320
+        1376,
+        -176
       ],
       "id": "e146e2c3-9f07-437c-b88c-5241614a0c2f",
       "name": "Send Message to Backrooms Channel",
@@ -375,13 +375,13 @@
     {
       "parameters": {
         "content": "## LLM\nRun the prompt through an LLM.",
-        "height": 800,
-        "width": 1344
+        "height": 688,
+        "width": 1152
       },
       "type": "n8n-nodes-base.stickyNote",
       "position": [
         -240,
-        -480
+        -304
       ],
       "typeVersion": 1,
       "id": "e12691c1-7bcc-405b-9cf6-81738a4c01ac",
@@ -395,8 +395,8 @@
       },
       "type": "n8n-nodes-base.stickyNote",
       "position": [
-        1296,
-        -416
+        976,
+        -304
       ],
       "typeVersion": 1,
       "id": "ffd466cf-28f8-4d87-b572-1ea57f11c978",
@@ -407,8 +407,7 @@
         "rule": {
           "interval": [
             {
-              "field": "minutes",
-              "minutesInterval": 1
+              "field": "seconds"
             }
           ]
         }
@@ -416,7 +415,7 @@
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
-        -1840,
+        -1712,
         160
       ],
       "id": "79496c60-f81c-4826-b887-5443389135c6",
@@ -434,8 +433,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1.2,
       "position": [
-        656,
-        144
+        304,
+        224
       ],
       "id": "fee12f6e-a688-4c6f-bec3-ee721c11a28d",
       "name": "OpenAI Chat Model",
@@ -448,6 +447,7 @@
     },
     {
       "parameters": {
+        "numberInputs": 3,
         "rules": {
           "rule": [
             {
@@ -504,6 +504,29 @@
                 ],
                 "combinator": "and"
               }
+            },
+            {
+              "modelIndex": 3,
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "af6ce0b1-ec43-4611-ab00-ace35c5242b1",
+                    "leftValue": "={{ $('Concatenate for Prompt').item.json.modelIndex }}",
+                    "rightValue": 2,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
             }
           ]
         }
@@ -511,15 +534,15 @@
       "type": "@n8n/n8n-nodes-langchain.modelSelector",
       "typeVersion": 1,
       "position": [
-        720,
-        -96
+        464,
+        16
       ],
       "id": "4be3ed3e-c431-45f8-b91b-25f5d6985614",
       "name": "Model Selector"
     },
     {
       "parameters": {
-        "jsCode": "// 'items' contains the array of objects from the GitHub list node\n// Each item is of the form { json: { name: \"...\", ... } }\n\nconst modelCount = 2;\nconst modelIndex = Math.floor(Math.random() * modelCount);\nreturn [{ json: { modelIndex } }];\n"
+        "jsCode": "// 'items' contains the array of objects from the GitHub list node\n// Each item is of the form { json: { name: \"...\", ... } }\n\nconst modelCount = 3;\nconst modelIndex = Math.floor(Math.random() * modelCount);\nreturn [{ json: { modelIndex } }];\n"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -539,11 +562,31 @@
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
       "typeVersion": 1.7,
       "position": [
-        784,
-        -352
+        544,
+        -176
       ],
       "id": "283dbe9e-2b69-4b6f-a356-3dae7ff94838",
       "name": "Generate Message via LLM"
+    },
+    {
+      "parameters": {
+        "model": "grok-4-fast-non-reasoning",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatXAiGrok",
+      "typeVersion": 1,
+      "position": [
+        672,
+        224
+      ],
+      "id": "a331bc82-194d-4c6f-8826-8e37699d746d",
+      "name": "xAI Grok Chat Model",
+      "credentials": {
+        "xAiApi": {
+          "id": "5XfvSCZnrF9LZAeL",
+          "name": "xAi account"
+        }
+      }
     }
   ],
   "pinData": {},
@@ -727,13 +770,24 @@
           }
         ]
       ]
+    },
+    "xAI Grok Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Model Selector",
+            "type": "ai_languageModel",
+            "index": 2
+          }
+        ]
+      ]
     }
   },
   "active": true,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "5160a636-e6e5-4b24-995a-a31e552c4cba",
+  "versionId": "da76cf24-3316-447a-9846-f291c523e60d",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "64418797d68a5090af26b3da43c537f68a646cd744e846deb70f0c6e4a6e7638"
